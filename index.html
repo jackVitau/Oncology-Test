@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Evaluación del Cáncer de Próstata</title>
+    <script type="module">
+        import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+        mermaid.initialize({ startOnLoad: true });
+    </script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            padding: 20px;
+        }
+        .input-group {
+            margin-bottom: 15px;
+        }
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        .input-group input {
+            padding: 10px;
+            width: 100%;
+        }
+        .button {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        .button:hover {
+            background-color: #45a049;
+        }
+        .result {
+            margin-top: 20px;
+        }
+        .result p {
+            margin: 5px 0;
+        }
+        .result a {
+            color: #4CAF50;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <h1>Evaluación del Cáncer de Próstata</h1>
+    <div class="input-group">
+        <label for="psa">PSA (ng/mL):</label>
+        <input type="number" id="psa" step="0.1">
+    </div>
+    <div class="input-group">
+        <label for="gleason">Gleason Score:</label>
+        <input type="number" id="gleason" min="2" max="10">
+    </div>
+    <div class="input-group">
+        <label for="stage">Estadio Tumoral (T):</label>
+        <input type="text" id="stage" placeholder="Ej: T1-T2a, T2b-T2c, T3a-T4">
+    </div>
+    <button class="button" onclick="evaluateRisk()">Evaluar</button>
+    <div class="result" id="result"></div>
+
+    <script>
+        function evaluateRisk() {
+            const psa = parseFloat(document.getElementById('psa').value);
+            const gleason = parseInt(document.getElementById('gleason').value);
+            const stage = document.getElementById('stage').value.trim().toUpperCase();
+
+            let risk = '';
+            let recommendation = '';
+            let confidence = '';
+
+            if (psa <= 10 && gleason <= 6 && stage === 'T1-T2A') {
+                risk = 'Bajo';
+                recommendation = `
+                    <p><strong>Recomendación:</strong> Vigilancia Activa</p>
+                    <p><strong>Descripción:</strong> La vigilancia activa es un enfoque recomendado para hombres con cáncer de próstata de bajo riesgo. Esto significa que, en lugar de comenzar un tratamiento inmediato como la cirugía o la radioterapia, su médico realizará un seguimiento cercano de su condición. Este seguimiento incluye pruebas de PSA, exámenes rectales digitales (DRE) y biopsias de próstata regulares para monitorear cualquier cambio en el cáncer.</p>
+                    <p>Este enfoque es apropiado cuando el cáncer se considera de crecimiento lento y tiene pocas probabilidades de causar síntomas o problemas de salud en el corto plazo. El objetivo es evitar los efectos secundarios del tratamiento a menos que sea absolutamente necesario.</p>
+                    <p><strong>Exámenes:</strong></p>
+                    <ul>
+                        <li>Prueba de PSA cada 6 meses</li>
+                        <li>DRE cada 6 meses</li>
+                        <li>Biopsia de próstata al menos cada 12 meses</li>
+                    </ul>
+                    <p><strong>Fuentes:</strong></p>
+                    <ul>
+                        <li><a href="https://www.nccn.org/professionals/physician_gls/pdf/prostate.pdf" target="_blank">NCCN Guidelines for Prostate Cancer</a></li>
+                        <li><a href="https://www.cancer.org/cancer/prostate-cancer.html" target="_blank">American Cancer Society: Prostate Cancer</a></li>
+                    </ul>
+                `;
+                confidence = '90%';
+            } else if ((psa > 10 && psa <= 20) || gleason === 7 || stage === 'T2B-T2C') {
+                risk = 'Intermedio';
+                recommendation = `
+                    <p><strong>Recomendación:</strong> Prostatectomía o Radioterapia</p>
+                    <p><strong>Descripción:</strong> Para el cáncer de próstata de riesgo intermedio, se consideran opciones de tratamiento más activas como la prostatectomía radical o la radioterapia. La prostatectomía radical implica la cirugía para remover la próstata completa y algunos tejidos circundantes. La radioterapia, por otro lado, utiliza rayos de alta energía para destruir las células cancerosas.</p>
+                    <p>Antes de comenzar cualquiera de estos tratamientos, su médico puede recomendar exámenes de imagen como resonancias magnéticas o tomografías computarizadas para evaluar la extensión del cáncer, así como gammagrafías óseas para asegurarse de que el cáncer no se ha diseminado a los huesos.</p>
+                    <p><strong>Exámenes Pre-Tratamiento:</strong></p>
+                    <ul>
+                        <li>Imágenes por resonancia magnética (RM) o tomografía computarizada (TC)</li>
+                        <li>Gammagrafía ósea para detectar metástasis</li>
+                    </ul>
+                    <p><strong>Exámenes Post-Tratamiento:</strong></p>
+                    <ul>
+                        <li>Prueba de PSA cada 3-6 meses durante los primeros 5 años, luego anualmente</li>
+                        <li>DRE anualmente</li>
+                    </ul>
+                    <p><strong>Fuentes:</strong></p>
+                    <ul>
+                        <li><a href="https://www.nccn.org/professionals/physician_gls/pdf/prostate.pdf" target="_blank">NCCN Guidelines for Prostate Cancer</a></li>
+                        <li><a href="https://www.cancer.org/cancer/prostate-cancer/treating.html" target="_blank">American Cancer Society: Treating Prostate Cancer</a></li>
+                    </ul>
+                `;
+                confidence = '80%';
+            } else if (psa > 20 || gleason >= 8 || stage === 'T3A-T4') {
+                risk = 'Alto/Muy Alto';
+                recommendation = `
+                    <p><strong>Recomendación:</strong> Terapia Hormonal o Quimioterapia</p>
+                    <p><strong>Descripción:</strong> Para el cáncer de próstata de alto riesgo o muy alto riesgo, los tratamientos más agresivos como la terapia hormonal o la quimioterapia son necesarios. La terapia hormonal implica reducir los niveles de hormonas masculinas (andrógenos) que alimentan el crecimiento del cáncer de próstata. Esto puede hacerse con medicamentos o, en algunos casos, mediante cirugía para remover los testículos (orquiectomía).</p>
+                    <p>La quimioterapia utiliza medicamentos fuertes para destruir las células cancerosas y puede administrarse por vía oral o intravenosa. Este tratamiento es particularmente útil si el cáncer se ha diseminado más allá de la próstata.</p>
+                    <p><strong>Exámenes Pre-Tratamiento:</strong></p>
+                    <ul>
+                        <li>Imágenes por resonancia magnética (RM) o tomografía computarizada (TC)</li>
+                        <li>Gammagrafía ósea para detectar metástasis</li>
+                        <li>Análisis de sangre para evaluar la función hepática y renal</li>
+                    </ul>
+                    <p><strong>Exámenes Durante el Tratamiento:</strong></p>
+                    <ul>
+                        <li>Prueba de PSA cada 3-6 meses</li>
+                        <li>Evaluaciones de salud general cada 3-6 meses</li>
+                    </ul>
+                    <p><strong>Exámenes Post-Tratamiento:</strong></p>
+                    <ul>
+                        <li>Prueba de PSA cada 3-6 meses durante los primeros 5 años, luego anualmente</li>
+                        <li>Imágenes por RM o TC según lo recomendado por el médico</li>
+                    </ul>
+                    <p>Estos tratamientos pueden tener efectos secundarios significativos, pero su médico trabajará con usted para manejarlos y mejorar su calidad de vida.</p>
+                    <p><strong>Fuentes:</strong></p>
+                    <ul>
+                        <li><a href="https://www.nccn.org/professionals/physician_gls/pdf/prostate.pdf" target="_blank">NCCN Guidelines for Prostate Cancer</a></li>
+                        <li><a href="https://www.cancer.org/cancer/prostate-cancer/treating/advanced-prostate-cancer.html" target="_blank">American Cancer Society: Advanced Prostate Cancer</a></li>
+                    </ul>
+                `;
+                confidence = '70%';
+            } else {
+                risk = 'Datos insuficientes o incorrectos';
+                recommendation = '<p>Por favor, ingrese valores válidos para PSA, Gleason Score, y Estadio Tumoral.</p>';
+                confidence = '';
+            }
+
+            document.getElementById('result').innerHTML = `
+                <h2>Resultado</h2>
+                <p><strong>Riesgo:</strong> ${risk}</p>
+                ${recommendation}
+                <p><strong>Confianza:</strong> ${confidence}</p>
+            `;
+        }
+    </script>
+</body>
+</html>
+    
